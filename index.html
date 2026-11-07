@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tugas & Materi - Bunga Indah Lestari</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+      /* Palet soft pink seimbang: terlihat pink, tetapi tidak neon atau terlalu nude */
+      :root { --pink-bg:#fff7fa; --pink-card:#fffdfd; --pink-soft:#f9e5ed; --pink-border:#edcfda; --pink-accent:#c87596; --pink-text:#654653; }
+      body { background:var(--pink-bg) !important; color:#59434d !important; }
+      header { background:linear-gradient(110deg,#f5cbd9,#efbdd0) !important; color:var(--pink-text) !important; box-shadow:0 3px 14px rgba(126,70,92,.06) !important; }
+      header .text-pink-100 { color:#815c6b !important; }
+      #header-identity { background:rgba(255,255,255,.72) !important; border-color:#e9bdce !important; color:#654653 !important; }
+      #auth-section > div, main .bg-white, #task-container > div, #empty-state, footer { background-color:var(--pink-card) !important; border-color:var(--pink-border) !important; box-shadow:0 2px 10px rgba(100,70,82,.035) !important; }
+      #auth-section .bg-pink-100 { background:#f9e5ed !important; color:#9e5575 !important; }
+      button[type="submit"], #task-form button { background:var(--pink-accent) !important; color:#fff !important; box-shadow:none !important; }
+      button[type="submit"]:hover, #task-form button:hover { background:#b96588 !important; }
+      /* Kartu ringkasan dibuat lebih jelas: pink terlihat, teks tetap kontras */
+      #dashboard-section .grid > button { background:linear-gradient(135deg,#f4c8d8,#f7d7e2) !important; color:#60394b !important; box-shadow:0 3px 8px rgba(130,70,95,.10) !important; border:1px solid #eab4c9 !important; }
+      #dashboard-section .grid > button:nth-child(2) { background:linear-gradient(135deg,#f5d0df,#f8dfeb) !important; }
+      #dashboard-section .grid > button:nth-child(3) { background:linear-gradient(135deg,#f7d2df,#f4c9d8) !important; }
+      #dashboard-section .grid > button:nth-child(4) { background:linear-gradient(135deg,#f2c4d5,#f6d5e0) !important; }
+      #dashboard-section .grid > button:nth-child(5) { background:linear-gradient(135deg,#f5cbd9,#f8dce6) !important; }
+      #dashboard-section .grid > button, #dashboard-section .grid > button * { color:#60394b !important; }
+      #dashboard-section .grid > button:hover { filter:brightness(.98); transform:translateY(-2px); }
+      #dashboard-section .grid > button p:last-child { color:#80576a !important; }
+      #dashboard-section .grid > button p.text-3xl { color:#713e56 !important; }
+      input, select { border-color:#ebd2dc !important; background-color:#fffdfd !important; color:#59434d !important; }
+      input:focus, select:focus { --tw-ring-color:#e8b8cb !important; border-color:#c87596 !important; }
+      #btn-semua, #btn-tugas, #btn-materi { background:#f9e7ee !important; color:#704b5a !important; }
+      #btn-semua { background:var(--pink-accent) !important; color:#fff !important; }
+      .text-pink-400, .text-pink-500, .text-pink-600, .text-indigo-600 { color:#a65376 !important; }
+      .bg-pink-50, .bg-pink-100, .bg-rose-50, .bg-rose-100, .bg-fuchsia-100 { background-color:#faeaf0 !important; }
+      .border-pink-200, .border-rose-200 { border-color:#edcfda !important; }
+      .bg-rose-300, .bg-rose-400, .bg-pink-300, .bg-pink-400 { background-color:#c87596 !important; }
+      .hover\:bg-rose-400:hover, .hover\:bg-pink-400:hover { background-color:#b96588 !important; }
+      .text-white { text-shadow:none !important; }
+      footer { color:#8d6878 !important; }
+
+      /* Tombol untuk melihat atau menyembunyikan password login */
+      .password-wrapper { position:relative; width:100%; }
+      .password-wrapper input { padding-right:46px; }
+      .toggle-password {
+        position:absolute; right:12px; top:50%; transform:translateY(-50%);
+        display:flex; align-items:center; justify-content:center;
+        width:28px; height:28px; border:0; border-radius:8px;
+        background:transparent; color:var(--pink-accent); cursor:pointer;
+      }
+      .toggle-password:hover { background:var(--pink-soft); }
+      .toggle-password:focus-visible { outline:2px solid var(--pink-accent); outline-offset:2px; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- HALAMAN LOGIN ADMIN -->
+    <div id="auth-section" class="flex-grow flex items-center justify-center px-4 py-12">
+        <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 w-full max-w-md">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-pink-100 text-pink-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-3xl">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900"> Tugas & Materi</h2>
+                <p class="text-xs text-slate-500 mt-1">Masuk untuk mengelola tugas dan materi perkuliahan</p>
+            </div>
+
+            <div id="login-error" class="hidden mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-400 text-xs rounded-xl text-center font-medium">
+                Username atau Password Admin salah!
+            </div>
+
+            <form id="auth-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Username</label>
+                    <input type="text" id="auth-username" required class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="Masukkan Username">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="auth-password" required class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="Masukkan Password">
+                        <button type="button" id="toggle-auth-password" class="toggle-password" aria-label="Lihat password" title="Lihat password">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-pink-400 hover:bg-pink-400 text-white font-semibold py-2.5 rounded-xl text-sm transition duration-200 shadow-md shadow-pink-100 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-key"></i> Masuk
+                </button>
+            </form>
+            <div class="mt-6 text-center text-xs text-slate-400">
+                <i class="fa-solid fa-lock mr-1"></i> Akses pribadi mahasiswa.
+            </div>
+        </div>
+    </div>
+
+    <!-- HALAMAN DASHBOARD ADMIN -->
+    <div id="dashboard-section" class="hidden flex-grow flex flex-col">
+        <header class="bg-gradient-to-r from-pink-300 via-rose-300 to-pink-300 text-white shadow-lg">
+            <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="bg-white/60 p-3 rounded-2xl">
+                        <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                    </div>
+                    <div class="pr-4 border-r border-rose-200">
+                        <p id="disp-universitas" class="text-sm font-semibold">Nama Universitas</p>
+                        <p class="text-xs text-pink-100">NIM: <span id="disp-nim-top">-</span></p>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Tugas & Materi</h1>
+                        <p class="text-xs text-pink-100">Kelola tugas dan materi perkuliahanmu ♡</p>
+                    </div>
+                </div>
+                
+                <!-- Identitas Singkat Header, Jam Realtime, & Logout -->
+                <div class="flex items-center gap-3">
+                    <div id="header-identity" class="bg-pink-300/60 border border-pink-200/70 px-4 py-2 rounded-xl text-sm flex items-center gap-4">
+                        <span><i class="fa-solid fa-user-gear mr-1.5"></i> <strong id="disp-nama">Admin</strong></span>
+                        <span><i class="fa-solid fa-id-card mr-1.5"></i> <span id="disp-nim">-</span></span>
+                        <span><i class="fa-solid fa-door-open mr-1.5"></i> <span id="disp-kelas">-</span></span>
+                        <!-- Tampilan Jam Realtime -->
+                        <span><i class="fa-regular fa-clock mr-1.5"></i> <span id="realtime-clock" class="font-semibold">--:--:--</span></span>
+                    </div>
+                    <button onclick="logout()" class="bg-rose-300 hover:bg-rose-400 text-white px-3 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-sm" title="Keluar">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Ringkasan jumlah tugas dan materi -->
+        <section class="max-w-6xl mx-auto px-4 pt-6 w-full">
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+                <button type="button" onclick="dashboardQuickFilter('total')" class="text-left rounded-2xl p-4 text-white shadow-md bg-gradient-to-br from-pink-100 to-rose-100 cursor-pointer hover:-translate-y-0.5 transition">
+                    <div class="flex items-center justify-between"><span class="text-sm font-medium">Total Item</span><i class="fa-solid fa-layer-group text-xl opacity-80"></i></div>
+                    <p id="count-total" class="text-3xl font-extrabold mt-2">0</p><p class="text-xs text-white/80">Tugas + materi terkumpul</p>
+                </button>
+                <button type="button" onclick="dashboardQuickFilter('tugas')" class="text-left rounded-2xl p-4 text-white shadow-md bg-gradient-to-br from-pink-100 to-pink-100 cursor-pointer hover:-translate-y-0.5 transition">
+                    <div class="flex items-center justify-between"><span class="text-sm font-medium">Tugas</span><i class="fa-solid fa-clipboard-list text-xl opacity-80"></i></div>
+                    <p id="count-tugas" class="text-3xl font-extrabold mt-2">0</p><p class="text-xs text-white/80">Item kategori tugas</p>
+                </button>
+                <button type="button" onclick="dashboardQuickFilter('materi')" class="text-left rounded-2xl p-4 text-white shadow-md bg-gradient-to-br from-rose-100 to-pink-100 cursor-pointer hover:-translate-y-0.5 transition">
+                    <div class="flex items-center justify-between"><span class="text-sm font-medium">Materi</span><i class="fa-solid fa-book-open text-xl opacity-80"></i></div>
+                    <p id="count-materi" class="text-3xl font-extrabold mt-2">0</p><p class="text-xs text-white/80">Materi tersimpan</p>
+                </button>
+                <button type="button" onclick="dashboardQuickFilter('selesai')" class="text-left rounded-2xl p-4 text-white shadow-md bg-gradient-to-br from-pink-100 to-rose-100 cursor-pointer hover:-translate-y-0.5 transition">
+                    <div class="flex items-center justify-between"><span class="text-sm font-medium">Selesai</span><i class="fa-solid fa-circle-check text-xl opacity-80"></i></div>
+                    <p id="count-selesai" class="text-3xl font-extrabold mt-2">0</p><p class="text-xs text-white/80">Item selesai</p>
+                </button>
+                <button type="button" onclick="dashboardQuickFilter('deadline')" class="text-left rounded-2xl p-4 text-white shadow-md bg-gradient-to-br from-rose-100 to-pink-100 cursor-pointer hover:-translate-y-0.5 transition">
+                    <div class="flex items-center justify-between"><span class="text-sm font-medium">Deadline Dekat</span><i class="fa-regular fa-calendar-check text-xl opacity-80"></i></div>
+                    <p id="count-deadline" class="text-3xl font-extrabold mt-2">0</p><p class="text-xs text-white/80">3 hari lagi</p>
+                </button>
+            </div>
+        </section>
+
+        <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Kolom Kiri -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200" id="identity-card">
+                    <h2 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-id-badge text-pink-400"></i> Identitas Mahasiswa
+                    </h2>
+                    <div class="space-y-3 text-sm">
+                        <div><p class="text-xs font-semibold text-slate-500 mb-1">Nama Lengkap</p><p class="font-medium text-slate-700">Bunga Indah Lestari</p></div>
+                        <div><p class="text-xs font-semibold text-slate-500 mb-1">NIM</p><p class="font-medium text-slate-700">240511170</p></div>
+                        <div><p class="text-xs font-semibold text-slate-500 mb-1">Kelas</p><p class="font-medium text-slate-700">TI24D</p></div>
+                        <div><p class="text-xs font-semibold text-slate-500 mb-1">Universitas</p><p class="font-medium text-slate-700">Universitas Muhammadiyah Cirebon</p></div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-plus text-pink-400"></i> Tambah Item Baru
+                    </h2>
+                    <form id="task-form" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori</label>
+                            <select id="kategori" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300">
+                                <option value="Tugas Mandiri">Tugas Mandiri</option>
+                                <option value="Tugas Kelompok">Tugas Kelompok</option>
+                                <option value="UTS">UTS (Ujian Tengah Semester)</option>
+                                <option value="UAS">UAS (Ujian Akhir Semester)</option>
+                                <option value="Materi">Materi</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Mata Kuliah</label>
+                            <select id="matkul" required class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300">
+                                <option value="" disabled selected>Pilih mata kuliah</option>
+                                <option value="Pemrograman Berbasis Platform">Pemrograman Berbasis Platform</option>
+                                <option value="Analisis dan Desain Perangkat Lunak">Analisis dan Desain Perangkat Lunak</option>
+                                <option value="AIK4">AIK4</option>
+                                <option value="Manajemen Proyek Teknologi Informasi">Manajemen Proyek Teknologi Informasi</option>
+                                <option value="Interaksi Manusia dan Komputer">Interaksi Manusia dan Komputer</option>
+                                <option value="Tata Tulis Ilmiah (Metodologi Penelitian)">Tata Tulis Ilmiah (Metodologi Penelitian)</option>
+                                <option value="AI Computing Platform">AI Computing Platform</option>
+                                <option value="Teknologi AR/VR">Teknologi AR/VR</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Judul / Keterangan Singkat</label>
+                            <input type="text" id="judul" required class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="Contoh: Membuat Laporan Tugas Akhir">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Deadline / Tenggat</label>
+                            <input type="date" id="deadline" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Lampiran Tugas (Opsional)</label>
+                            <input type="file" id="file-dokumen" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,.png,.jpg,.jpeg,.xlsx,.txt" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-pink-50 file:text-pink-600 hover:file:bg-pink-100">
+                            <p class="text-[11px] text-slate-400 mt-1">Mendukung file besar hingga 1 GB.</p>
+                        </div>
+                        <button type="submit" class="w-full bg-pink-400 hover:bg-pink-400 text-white font-medium py-2 rounded-lg text-sm transition">
+                            Tambah ke Daftar
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan -->
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-3 justify-between items-center">
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button onclick="filterList('semua')" id="btn-semua" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-pink-400 text-white transition">Semua</button>
+                        <button onclick="filterList('mendekati')" id="btn-mendekati" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition whitespace-nowrap"><i class="fa-regular fa-clock mr-1"></i>Mendekati Deadline</button>
+                    </div>
+                    <div class="w-full sm:flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <select id="matkul-filter" onchange="renderData()" class="w-full px-3 py-1.5 text-xs border border-pink-200 bg-pink-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300">
+                            <option value="">Semua Mata Kuliah</option>
+                        </select>
+                        <select id="kategori-filter" onchange="renderData()" class="w-full px-3 py-1.5 text-xs border border-violet-200 bg-violet-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500">
+                            <option value="">Semua Jenis</option>
+                            <option value="Tugas Mandiri">Tugas Mandiri</option>
+                            <option value="Tugas Kelompok">Tugas Kelompok</option>
+                            <option value="UTS">UTS</option>
+                            <option value="UAS">UAS</option>
+                            <option value="Materi">Materi</option>
+                        </select>
+                        <input type="text" id="search-input" oninput="renderData()" placeholder="Cari judul atau kata kunci..." class="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300">
+                    </div>
+                </div>
+
+                <div id="task-container" class="space-y-3"></div>
+
+                <div id="empty-state" class="hidden text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300">
+                    <i class="fa-solid fa-folder-open text-4xl text-slate-300 mb-2"></i>
+                    <p class="text-sm text-slate-500" id="empty-state-message">Belum ada tugas atau materi yang ditambahkan.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        &copy; 2026 Tugas & Materi Perkuliahan
+    </footer>
+
+    <!-- JavaScript Logika -->
+    <script>
+        const ADMIN_USERNAME = "BungaIndahLestari";
+        const ADMIN_PASSWORD = "09092005";
+
+        let isAdminLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+
+        let appData = JSON.parse(localStorage.getItem('admin_kuliah_data')) || {
+            universitas: 'Universitas Muhammadiyah Cirebon',
+            nim: '240511170',
+            nama: 'Bunga Indah Lestari',
+            kelas: 'TI24D',
+            items: []
+        };
+
+        appData.universitas = 'Universitas Muhammadiyah Cirebon';
+        appData.nim = '240511170';
+        appData.nama = 'Bunga Indah Lestari';
+        appData.kelas = 'TI24D';
+        localStorage.setItem('admin_kuliah_data', JSON.stringify(appData));
+
+        window.onload = function() {
+            if (isAdminLoggedIn) {
+                showDashboard();
+            } else {
+                showAuth();
+            }
+            // Mulai jalankan fungsi jam real-time
+            initRealtimeClock();
+        };
+
+        // Fungsi untuk memperbarui jam setiap detik
+        function initRealtimeClock() {
+            function updateClock() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                const clockElement = document.getElementById('realtime-clock');
+                if (clockElement) {
+                    clockElement.innerText = `${hours}:${minutes}:${seconds}`;
+                }
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        document.getElementById('auth-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const usernameInput = document.getElementById('auth-username').value.trim();
+            const passwordInput = document.getElementById('auth-password').value;
+            const errorDiv = document.getElementById('login-error');
+
+            if (usernameInput === ADMIN_USERNAME && passwordInput === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true;
+                localStorage.setItem('admin_logged_in', 'true');
+                errorDiv.classList.add('hidden');
+                showDashboard();
+            } else {
+                errorDiv.classList.remove('hidden');
+            }
+        });
+
+        function showDashboard() {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.remove('hidden');
+            updateHeaderIdentity();
+            localStorage.setItem('admin_kuliah_data', JSON.stringify(appData));
+            renderData();
+        }
+
+        function showAuth() {
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('dashboard-section').classList.add('hidden');
+        }
+
+        function logout() {
+            localStorage.removeItem('admin_logged_in');
+            isAdminLoggedIn = false;
+            document.getElementById('auth-form').reset();
+            document.getElementById('login-error').classList.add('hidden');
+            showAuth();
+        }
+
+        function updateHeaderIdentity() {
+            document.getElementById('disp-universitas').innerText = appData.universitas || 'Nama Universitas';
+            document.getElementById('disp-nim-top').innerText = appData.nim || '-';
+            document.getElementById('disp-nama').innerText = appData.nama || 'Bunga Indah Lestari';
+            document.getElementById('disp-nim').innerText = appData.nim || '-';
+            document.getElementById('disp-kelas').innerText = appData.kelas || '-';
+        }
+
+        let currentFilter = 'semua';
+        let dashboardFilter = '';
+
+        // Form Submit Menggunakan API Upload Flask (/api/upload)
+        document.getElementById('task-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('file-dokumen');
+            const files = Array.from(fileInput.files || []);
+            
+            try {
+                let attachments = [];
+                for (const file of files) {
+                    const formData = new FormData();
+                    formData.append("file", file);
+                    
+                    const response = await fetch("/api/upload", {
+                        method: "POST",
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    if (!response.ok) {
+                        throw new Error(result.error || "Gagal mengunggah file.");
+                    }
+                    attachments.push({ name: result.name, data: result.url });
+                }
+                pushNewItem(attachments);
+            } catch (error) {
+                alert("Gagal mengunggah file: " + error.message);
+            }
+        });
+
+        function pushNewItem(attachments = []) {
+            const newItem = {
+                id: Date.now(),
+                kategori: document.getElementById('kategori').value,
+                matkul: document.getElementById('matkul').value,
+                judul: document.getElementById('judul').value.trim(),
+                deadline: document.getElementById('deadline').value || '',
+                attachments: attachments,
+                fileName: attachments[0]?.name || '',
+                fileData: attachments[0]?.data || '',
+                selesai: false
+            };
+
+            appData.items.push(newItem);
+            try {
+                saveAndRender();
+                document.getElementById('task-form').reset();
+            } catch (error) {
+                appData.items.pop();
+                alert('Penyimpanan gagal. Pastikan kapasitas browser mencukupi.');
+            }
+        }
+
+        document.addEventListener('change', function(event) {
+            const input = event.target;
+            if (input && input.matches('.task-attachment-input')) {
+                const itemId = input.dataset.itemId;
+                if (input.files && input.files.length) {
+                    addAttachmentsToItem(itemId, input);
+                }
+            }
+        });
+
+        async function addAttachmentsToItem(itemId, input) {
+            const item = appData.items.find(entry => String(entry.id) === String(itemId));
+            const files = Array.from(input.files || []);
+            if (!item) {
+                alert('Tugas tidak ditemukan.');
+                input.value = '';
+                return;
+            }
+            if (files.length === 0) return;
+
+            try {
+                let newAttachments = [];
+                for (const file of files) {
+                    const formData = new FormData();
+                    formData.append("file", file);
+                    
+                    const response = await fetch("/api/upload", {
+                        method: "POST",
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    if (!response.ok) {
+                        throw new Error(result.error || "Gagal mengunggah file.");
+                    }
+                    newAttachments.push({ name: result.name, data: result.url });
+                }
+
+                const oldAttachments = Array.isArray(item.attachments) ? item.attachments : [];
+                item.attachments = oldAttachments.concat(newAttachments);
+                item.fileName = item.attachments[0]?.name || '';
+                item.fileData = item.attachments[0]?.data || '';
+                
+                saveAndRender();
+                alert('File berhasil ditambahkan!');
+            } catch (error) {
+                alert('Gagal mengunggah file: ' + error.message);
+            } finally {
+                input.value = '';
+            }
+        }
+
+        function saveAndRender() {
+            localStorage.setItem('admin_kuliah_data', JSON.stringify(appData));
+            renderData();
+        }
+
+        function dashboardQuickFilter(type) {
+            dashboardFilter = type;
+            currentFilter = type === 'deadline' ? 'mendekati' : 'semua';
+            const mf = document.getElementById('matkul-filter'); if (mf) mf.value = '';
+            const kf = document.getElementById('kategori-filter'); if (kf) kf.value = '';
+            const si = document.getElementById('search-input'); if (si) si.value = '';
+            document.getElementById('task-container')?.scrollIntoView({behavior:'smooth', block:'start'});
+            renderData();
+        }
+
+        function filterList(category) {
+            currentFilter = category;
+            dashboardFilter = category === 'mendekati' ? 'deadline' : '';
+            renderData();
+        }
+
+        function getDeadlineDate(item) {
+            const raw = item.deadline || '';
+            if (typeof raw !== 'string' || !raw.trim()) return null;
+            const value = raw.trim();
+            const m = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+            if (!m) return null;
+            const year=+m[1], month=+m[2], day=+m[3];
+            const date = new Date(year, month-1, day);
+            date.setHours(0,0,0,0);
+            return date;
+        }
+
+        function toggleStatus(id) {
+            const item = appData.items.find(i => i.id === id);
+            if(item) {
+                item.selesai = !item.selesai;
+                saveAndRender();
+            }
+        }
+
+        function deleteItem(id) {
+            if(confirm('Apakah Anda yakin ingin menghapus item ini?')) {
+                appData.items = appData.items.filter(i => i.id !== id);
+                saveAndRender();
+            }
+        }
+
+        function renderData() {
+            const allItems = appData.items || [];
+            document.getElementById('count-total').innerText = allItems.length;
+            document.getElementById('count-tugas').innerText = allItems.filter(item => ['Tugas Mandiri', 'Tugas Kelompok', 'UTS', 'UAS'].includes(item.kategori) || item.kategori === 'Tugas').length;
+            document.getElementById('count-materi').innerText = allItems.filter(item => item.kategori === 'Materi').length;
+            document.getElementById('count-selesai').innerText = allItems.filter(item => item.selesai).length;
+            const todayForCount = new Date(); todayForCount.setHours(0,0,0,0);
+            const deadlineCount = allItems.filter(item => { const due = getDeadlineDate(item); return !item.selesai && due && Math.ceil((due - todayForCount) / 86400000) <= 3; }).length;
+            document.getElementById('count-deadline').innerText = deadlineCount;
+
+            const container = document.getElementById('task-container');
+            const emptyState = document.getElementById('empty-state');
+            const searchKeyword = document.getElementById('search-input').value.toLowerCase().trim();
+            const matkulSelect = document.getElementById('matkul-filter');
+            const selectedMatkul = matkulSelect.value;
+            const kategoriSelect = document.getElementById('kategori-filter');
+            const selectedKategori = kategoriSelect.value;
+
+            const daftarMataKuliah = [
+                'Pemrograman Berbasis Platform',
+                'Analisis dan Desain Perangkat Lunak',
+                'AIK4',
+                'Manajemen Proyek Teknologi Informasi',
+                'Interaksi Manusia dan Komputer',
+                'Tata Tulis Ilmiah (Metodologi Penelitian)',
+                'AI Computing Platform',
+                'Teknologi AR/VR'
+            ];
+            const mataKuliahUnik = [...new Set([...daftarMataKuliah, ...allItems.map(item => item.matkul).filter(Boolean)])]
+                .sort((a, b) => a.localeCompare(b, 'id'));
+            matkulSelect.innerHTML = '<option value="">Semua Mata Kuliah</option>';
+            mataKuliahUnik.forEach(matkul => {
+                const option = document.createElement('option');
+                option.value = matkul;
+                option.textContent = matkul;
+                matkulSelect.appendChild(option);
+            });
+            matkulSelect.value = mataKuliahUnik.includes(selectedMatkul) ? selectedMatkul : '';
+
+            container.innerHTML = '';
+
+            let filtered = allItems.filter(item => {
+                const matchCategory = currentFilter === 'semua' || currentFilter === 'mendekati' || item.kategori === currentFilter;
+                const isTask = ['Tugas Mandiri', 'Tugas Kelompok', 'UTS', 'UAS', 'Tugas'].includes(item.kategori);
+                const matchDashboard = !dashboardFilter || dashboardFilter === 'total' || (dashboardFilter === 'tugas' && isTask) || (dashboardFilter === 'materi' && item.kategori === 'Materi') || (dashboardFilter === 'selesai' && item.selesai) || dashboardFilter === 'deadline';
+                const matchSelectedCategory = !selectedKategori || item.kategori === selectedKategori;
+                const matchMatkul = !matkulSelect.value || item.matkul === matkulSelect.value;
+                const matchSearch = (item.matkul || '').toLowerCase().includes(searchKeyword) || (item.judul || '').toLowerCase().includes(searchKeyword);
+                let matchDeadline = true;
+                if (currentFilter === 'mendekati') {
+                    const due = getDeadlineDate(item);
+                    const today = new Date(); today.setHours(0,0,0,0);
+                    const days = due ? Math.round((due - today) / 86400000) : null;
+                    matchDeadline = !item.selesai && due !== null && days <= 3;
+                }
+                return matchCategory && matchDashboard && matchSelectedCategory && matchMatkul && matchSearch && matchDeadline;
+            });
+
+            if(filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = `bg-white p-4 rounded-2xl shadow-sm border transition flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 ${item.selesai ? 'border-emerald-300 bg-emerald-50/20' : 'border-slate-200'}`;
+                
+                const badgeColors = {
+                    'Tugas Mandiri': 'bg-pink-100 text-pink-600',
+                    'Tugas Kelompok': 'bg-rose-100 text-rose-600',
+                    'UTS': 'bg-fuchsia-100 text-fuchsia-600',
+                    'UAS': 'bg-pink-100 text-pink-700',
+                    'Materi': 'bg-rose-50 text-rose-500'
+                };
+                const badgeColor = badgeColors[item.kategori] || 'bg-slate-100 text-slate-700';
+
+                let deadlineText = 'Belum ada deadline';
+                let deadlineBadge = '<span class="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-500">Tanpa deadline</span>';
+
+                const dueDay = getDeadlineDate(item);
+                if (dueDay) {
+                    deadlineText = dueDay.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    const today = new Date(); today.setHours(0, 0, 0, 0);
+                    if (item.selesai) {
+                        deadlineBadge = '<span class="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700">Selesai</span>';
+                    } else if (dueDay < today) {
+                        deadlineBadge = '<span class="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-rose-100 text-rose-700">Terlambat</span>';
+                    } else if (dueDay.getTime() === today.getTime()) {
+                        deadlineBadge = '<span class="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-700">Deadline hari ini</span>';
+                    } else {
+                        const days = Math.ceil((dueDay - today) / 86400000);
+                        deadlineBadge = `<span class="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-pink-100 text-pink-700">${days} hari lagi</span>`;
+                    }
+                }
+
+                if (item.selesai) {
+                    deadlineBadge = '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700"><i class="fa-solid fa-check"></i> Selesai</span>';
+                }
+
+                let fileHtml = '';
+                const attachments = Array.isArray(item.attachments) ? item.attachments : [];
+                if (attachments.length) {
+                    fileHtml = `<div class="flex flex-wrap gap-2 mt-2">${attachments.map((file, index) => {
+                        const safeName = String(file.name || `Lampiran ${index + 1}`).replace(/[&<>"']/g, '');
+                        return `<a href="${file.data}" download="${safeName}" class="inline-flex items-center gap-1.5 text-xs font-medium text-pink-700 hover:text-pink-900 bg-pink-50 border border-pink-100 px-2.5 py-1.5 rounded-md transition"><i class="fa-solid fa-file-arrow-down"></i> ${safeName}</a>`;
+                    }).join('')}</div>`;
+                }
+
+                card.innerHTML = `
+                    <div class="flex items-start gap-3 w-full">
+                        <button onclick="toggleStatus(${item.id})" class="mt-1 text-lg text-slate-400 hover:text-emerald-600 transition" title="${item.selesai ? 'Tandai belum selesai' : 'Tandai selesai'}">
+                            <i class="fa-${item.selesai ? 'solid fa-circle-check text-emerald-600' : 'regular fa-circle'}"></i>
+                        </button>
+                        <div class="space-y-1 w-full">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${badgeColor}">${item.kategori}</span>
+                                <span class="text-xs font-semibold text-pink-400">${item.matkul}</span>
+                            </div>
+                            <h3 class="text-sm font-bold text-slate-800 ${item.selesai ? 'line-through text-slate-400' : ''}">${item.judul}</h3>
+                            <div class="flex flex-wrap items-center gap-2 mt-1"><p class="text-xs text-slate-500"><i class="fa-regular fa-calendar mr-1"></i> Deadline: ${deadlineText}</p>${deadlineBadge}</div>
+                            <div>${fileHtml}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 self-end sm:self-center">
+                        <label class="relative overflow-hidden inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-pink-700 bg-pink-50 border border-pink-200 hover:bg-pink-100 rounded-lg cursor-pointer transition" title="Tambah file">
+                            <i class="fa-solid fa-paperclip"></i> Tambah file
+                            <input type="file" multiple data-item-id="${item.id}" accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,.png,.jpg,.jpeg,.xlsx,.txt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer task-attachment-input">
+                        </label>
+                        <button onclick="deleteItem(${item.id})" class="p-2 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-rose-50 transition" title="Hapus">
+                            <i class="fa-solid fa-trash-can text-sm"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        const authPasswordField = document.getElementById('auth-password');
+        const toggleAuthPasswordButton = document.getElementById('toggle-auth-password');
+
+        toggleAuthPasswordButton.addEventListener('click', function() {
+            const showPassword = authPasswordField.type === 'password';
+            authPasswordField.type = showPassword ? 'text' : 'password';
+            this.innerHTML = showPassword ? '<i class="fa-regular fa-eye-slash"></i>' : '<i class="fa-regular fa-eye"></i>';
+        });
+    </script>
+</body>
+</html>
